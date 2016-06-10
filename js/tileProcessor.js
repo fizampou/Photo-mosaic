@@ -1,45 +1,58 @@
 self.onmessage = function(e) {
     var data =  e.data.data;
     var index = e.data.index;
-    var dominantColorsX = new Array();
     var dominantColors = new Array();
 
     for (var i = 0; i < data.length; i++)
     {
+        var dominantColorsX = new Array();
+
         for (var j = 0; j < data[i].length; j++) {
               var dominantColor = getColors(data[i][j]);
 
-              var xhr = new XMLHttpRequest();
-              xhr.open('GET', "http://localhost:8765/color/" + dominantColor, false);
-
-              xhr.addEventListener("readystatechange", function(e) {
-                  if (e.currentTarget.readyState == 4 && e.currentTarget.status == 200) {
-                      dominantColorsX.push(e.currentTarget.response);
-                  } else {
-                      // wrong color? set black as failsafe
-                      var svgTemplate = [
-                        '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16">',
-                          '<ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="#000000"></ellipse>',
-                        '</svg>'
-                      ].join('');
-
-                      dominantColorsX.push(svgTemplate);
-                }
-              }, false);
-
-              xhr.send();
+              dominantColorsX.push(colorFetcher("http://localhost:8765/color/" + dominantColor));
         }
 
-        dominantColors.push(dominantColorsX);
-        dominantColorsX = [];
+        dominantColors.push(new Promise(function(resolve) {
+            Promise.all(dominantColorsX).then(resolve);
+        }));
     }
 
-    self.postMessage({
-        result: data,
-        dominantColors: dominantColors,
-        index: index
+    Promise.all(dominantColors).then(function(dominantColors) {
+        self.postMessage({
+            result: data,
+            dominantColors: dominantColors,
+            index: index
+        });
+        close();
     });
 };
+
+function colorFetcher(url) {
+  // error? set black as failsafe
+  var svgBlack = [
+          '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16">',
+              '<ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="#000000"></ellipse>',
+          '</svg>'
+      ].join('');
+
+    return new Promise(function(resolve) {
+      var request = new XMLHttpRequest();
+      request.open('GET', url);
+
+      request.onload = function() {
+        if (request.status === 200) {
+            resolve(request.response);
+        } else {
+            resolve(svgBlack);
+        }
+      };
+      request.onerror = function() {
+          resolve(svgBlack);
+      };
+      request.send();
+    });
+  }
 
 // average color of tile
 function getColors(pixels) {
