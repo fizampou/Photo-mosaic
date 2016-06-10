@@ -1,27 +1,32 @@
-function Coords(x, y) {
-    this.x = x;
-    this.y = y;
+var exports = exports || null;
 
-    this.divide = function(other) {
-        this.x /= other.x;
-        this.y /= other.y;
+if (exports) {
 
-        return this;
-    };
+    function Coords(x, y) {
+        this.x = x;
+        this.y = y;
 
-    this.multiply = function(other) {
-        this.x *= other.x;
-        this.y *= other.y;
+        this.divide = function(other) {
+            this.x /= other.x;
+            this.y /= other.y;
 
-        return this;
-    };
+            return this;
+        };
 
-    this.overwriteWith = function(other) {
-        this.x = other.x;
-        this.y = other.y;
+        this.multiply = function(other) {
+            this.x *= other.x;
+            this.y *= other.y;
 
-        return this;
-    };
+            return this;
+        };
+
+        this.overwriteWith = function(other) {
+            this.x = other.x;
+            this.y = other.y;
+
+            return this;
+        };
+    }
+
+    module.exports = Coords;
 }
-
-module.exports = Coords;

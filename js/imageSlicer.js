@@ -6,13 +6,13 @@ var exports = exports || null;
 if (exports) {
     // slice image into tiles
     exports.sliceImageIntoTiles = function(imageToSlice, sizeInTiles) {
-        var totalTiles       = [],
-            tilesX           = [],
-            tilePos          = new Coords(0, 0),
-            sourcePos        = new Coords(0, 0),
-            tileSize         = new Coords(mosaic.TILE_WIDTH, mosaic.TILE_HEIGHT),
-            canvas           = document.createElement('canvas'),
-            context          = canvas.getContext('2d');
+        var totalTiles = [],
+            tilesX     = [],
+            tilePos    = new Coords(0, 0),
+            sourcePos  = new Coords(0, 0),
+            tileSize   = new Coords(mosaic.TILE_WIDTH, mosaic.TILE_HEIGHT),
+            canvas     = document.createElement('canvas'),
+            context    = canvas.getContext('2d');
 
         canvas.width = imageToSlice.width;
         canvas.height = imageToSlice.height;
