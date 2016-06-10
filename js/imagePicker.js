@@ -1,5 +1,5 @@
-var callback;
-var exports = exports || null;
+var exports = exports || null,
+    callback;
 
 if (exports) {
 

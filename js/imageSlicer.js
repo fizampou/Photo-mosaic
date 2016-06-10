@@ -1,7 +1,6 @@
-var mosaic      = require('./mosaic.js');
-var Coords      = require('./Coords.js');
-
-var exports = exports || null;
+var mosaic = require('./mosaic.js'),
+    Coords = require('./Coords.js'),
+    exports = exports || null;
 
 if (exports) {
     // slice image into tiles
