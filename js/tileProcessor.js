@@ -1,32 +1,51 @@
-self.onmessage = function(e) {
-    var data =  e.data.data;
-    var index = e.data.index;
-    var dominantColors = new Array();
+onmessage = onMessage;
 
-    for (var i = 0; i < data.length; i++)
+function onMessage (e) {
+    var data  =  e.data.data,
+        index = e.data.index,
+        i     = 0;
+
+    for (i; i < data.length; i++)
     {
-        var dominantColorsX = new Array();
+      prepareRow(data, i, index).then(message, error);
+    }
+}
+
+function error(error) {
+    console.log('error' + error);
+}
+
+function message(result) {
+    postMessage({
+        result: result.tiles,
+        colors: result.dominantColors,
+        row: result.position,
+        isLastRow : result.isLastRow
+    });
+}
+
+function prepareRow(data, i, index) {
+    return new Promise(function(resolve, reject) {
+        var row = i + index * data.length,
+            dominantColors = [];
 
         for (var j = 0; j < data[i].length; j++) {
-              var dominantColor = getColors(data[i][j]);
-
-              dominantColorsX.push(colorFetcher("http://localhost:8765/color/" + dominantColor));
+            dominantColors.push(colorFetcher("http://localhost:8765/color/" + getColors(data[i][j])));
         }
+        dominantColors.push(row); // push the row
 
-        dominantColors.push(new Promise(function(resolve) {
-            Promise.all(dominantColorsX).then(resolve);
-        }));
-    }
+        Promise.all(dominantColors).then(function(dominantColors) {
+            var position  = dominantColors.pop();
 
-    Promise.all(dominantColors).then(function(dominantColors) {
-        self.postMessage({
-            result: data,
-            dominantColors: dominantColors,
-            index: index
-        });
-        close();
+            resolve({
+                dominantColors: dominantColors,
+                tiles : data[i],
+                isLastRow : (i === data.length - 1),
+                position: position
+            });
+        }, error);
     });
-};
+}
 
 function colorFetcher(url) {
   // error? set black as failsafe

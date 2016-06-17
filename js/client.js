@@ -1,11 +1,13 @@
-var mosaic      = require('./mosaic.js');
-var imagePicker = require('./imagePicker.js');
-var Coords      = require('./Coords.js');
-var imageSlicer = require('./imageSlicer.js');
-
-var finalArray          = new Array(),
-    dominantColorsArray = new Array(),
-    workerCnt           = 0;
+var mosaic              = require('./mosaic.js'),
+    imagePicker         = require('./imagePicker.js'),
+    Coords              = require('./Coords.js'),
+    imageSlicer         = require('./imageSlicer.js'),
+    tilesArray          = [],
+    dominantColorsArray = [],
+    drawingPointer      = 0,
+    workersCount        = 4,
+    pendingWorkers      = 4,
+    workersArray        = [workersCount];
 
 imagePicker.init(ImageLoaded);
 
@@ -15,7 +17,6 @@ function ImageLoaded (file) {
         noOfTilesX   = imageToSlice.width / mosaic.TILE_WIDTH,
         noOfTilesY   = imageToSlice.height / mosaic.TILE_HEIGHT,
         imageTiles   = imageSlicer.sliceImageIntoTiles(imageToSlice, new Coords(noOfTilesX, noOfTilesY)),
-        workersCount = 4,
         blockSize    = Math.ceil(imageTiles.length / workersCount),
         canvas       = document.getElementById('canvas');
 
@@ -24,45 +25,50 @@ function ImageLoaded (file) {
 
     for (var index = 0; index < workersCount; index++) {
 
-        var worker = new Worker('js/tileProcessor.js');
+        workersArray[index] = new Worker('js/tileProcessor.js');
 
-        worker.onmessage = onWorkEnded;
+        workersArray[index].onmessage = onWorkEnded;
 
-        worker.postMessage({
+        workersArray[index].postMessage({
             data: imageTiles.slice(blockSize * index, (blockSize * index) + blockSize),
             index: index
         });
     }
 }
 
-
 function onWorkEnded (e) {
-    var subArray = e.data.result,
-        dominantColors = e.data.dominantColors,
-        index    = e.data.index;
+    var tilesRow          = e.data.result,
+        dominantColorsRow = e.data.colors,
+        row               = e.data.row,
+        isLastRow         = e.data.isLastRow;
 
-    workerCnt ++;
-
-    for (var i = 0; i < subArray.length; i++)
-    {
-        finalArray[i + index * subArray.length] = subArray[i];
-        dominantColorsArray[i + index * subArray.length] = dominantColors[i]
+    if (isLastRow) {
+        pendingWorkers --;
     }
 
-    if(workerCnt === 4) {
-        workersDone();
+    tilesArray[row] = tilesRow;
+    dominantColorsArray[row] = dominantColorsRow;
+
+    if (pendingWorkers === 0) {
+        workersArray.forEach(terminateWorker);
+        do {
+            drawRow(tilesArray[drawingPointer], dominantColorsArray[drawingPointer], drawingPointer);
+            drawingPointer ++;
+        } while( tilesArray[drawingPointer] );
     }
 }
 
-function workersDone() {
+function terminateWorker(elm) {
+    elm.terminate();
+}
+
+function drawRow(tiles, colors, position) {
     var imageTileSize = new Coords(mosaic.TILE_WIDTH, mosaic.TILE_HEIGHT);
 
-    for (var i = 0; i < finalArray.length; i++) {
-        for (var j = 0; j < finalArray[i].length; j++) {
-            var drawPos = new Coords(i, j).multiply(imageTileSize);
+    for (var j = 0; j < tiles.length; j++) {
+        var drawPos = new Coords(position, j).multiply(imageTileSize);
 
-            drawTileOnCanva(finalArray[i][j], dominantColorsArray[i][j],drawPos.y, drawPos.x);
-        }
+        drawTileOnCanva(tiles[j], colors[j], drawPos.y, drawPos.x);
     }
 }
 
@@ -70,7 +76,7 @@ function workersDone() {
 function drawTileOnCanva (tile, dominantColor, positionX, positionY) {
     var canvas  = document.getElementById('canvas'),
         context = canvas.getContext('2d');
-    
+
     // Create a Data URI (prefix + base64 encoding)
     var dominantColorData = 'data:image/svg+xml;base64,' + window.btoa(dominantColor);
 
@@ -80,7 +86,7 @@ function drawTileOnCanva (tile, dominantColor, positionX, positionY) {
         context.putImageData(tile, positionX, positionY);
         context.globalCompositeOperation = 'soft-light';
         context.drawImage(colorImage, positionX, positionY, mosaic.TILE_WIDTH, mosaic.TILE_HEIGHT);
-    }
+    };
 
     colorImage.src = dominantColorData;
 }
