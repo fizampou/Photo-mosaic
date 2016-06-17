@@ -1,4 +1,4 @@
-var exports = exports || null;
+var module = module || null;
 
 function Coords(x, y) {
     this.x = x;
@@ -26,6 +26,6 @@ function Coords(x, y) {
     };
 }
 
-if (exports) {
+if (module && module.exports) {
     module.exports = Coords;
 }
