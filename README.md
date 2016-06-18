@@ -18,6 +18,10 @@ With [npm](https://www.npmjs.com/) do:
 npm install
 ```
 
+```
+npm install browserify -g
+```
+
 # getting started
 
 ```
@@ -36,7 +40,7 @@ hit on the browser
 http://localhost:8765
 ```
 
-you can configure the tile size by changing mosaic.js file. 
+you can configure the tile size by changing mosaic.js file.
 
 # result
 
