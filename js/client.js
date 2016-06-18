@@ -2,6 +2,7 @@ var mosaic              = require('./mosaic.js'),
     imagePicker         = require('./imagePicker.js'),
     Coords              = require('./Coords.js'),
     imageSlicer         = require('./imageSlicer.js'),
+    work                = require('webworkify'),
     tilesArray          = [], // Array holding tiles
     dominantColorsArray = [], // Array holding dominant colors per tile
     drawingPointer      = 0,  // Pointer on our drawn rows
@@ -34,8 +35,8 @@ function assignToImageWorkers(imageTiles) {
         index     = 0;
 
     for (index; index < workersCount; index++) {
-        workersArray[index] = new Worker('js/tileProcessor.js');
-        workersArray[index].onmessage = onRowReady;
+        workersArray[index] = work(require('./tileProcessor.js'));
+        workersArray[index].addEventListener('message', onRowReady);
         workersArray[index].postMessage({
             data: imageTiles.slice(blockSize * index, (blockSize * index) + blockSize),
             index: index
