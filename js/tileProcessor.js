@@ -1,18 +1,19 @@
+// Tile processing is happening here
+// dominant color per tile and xhr request to
+// fetch each color. When a row is ready with
+// all dominant colors we send the result.
+
 onmessage = onMessage;
 
 function onMessage (e) {
-    var data  =  e.data.data,
+    var data  = e.data.data,
         index = e.data.index,
         i     = 0;
 
     for (i; i < data.length; i++)
     {
-      prepareRow(data, i, index).then(message, error);
+        prepareRow(data, i, index).then(message, error);
     }
-}
-
-function error(error) {
-    console.log('error' + error);
 }
 
 function message(result) {
@@ -26,16 +27,17 @@ function message(result) {
 
 function prepareRow(data, i, index) {
     return new Promise(function(resolve, reject) {
-        var row = i + index * data.length,
-            dominantColors = [];
+        var row            = i + index * data.length,
+            dominantColors = [],
+            j              = 0;
 
-        for (var j = 0; j < data[i].length; j++) {
+        for (j; j < data[i].length; j++) {
             dominantColors.push(colorFetcher("http://localhost:8765/color/" + getColors(data[i][j])));
         }
-        dominantColors.push(row); // push the row
+        dominantColors.push(row); // push the position
 
         Promise.all(dominantColors).then(function(dominantColors) {
-            var position  = dominantColors.pop();
+            var position  = dominantColors.pop(); // get the position
 
             resolve({
                 dominantColors: dominantColors,
@@ -56,22 +58,26 @@ function colorFetcher(url) {
       ].join('');
 
     return new Promise(function(resolve) {
-      var request = new XMLHttpRequest();
-      request.open('GET', url);
+        var request = new XMLHttpRequest();
+        request.open('GET', url);
 
-      request.onload = function() {
-        if (request.status === 200) {
-            resolve(request.response);
-        } else {
+        request.onload = function() {
+            if (request.status === 200) {
+                resolve(request.response);
+            } else {
+                resolve(svgBlack);
+            }
+        };
+        request.onerror = function() {
             resolve(svgBlack);
-        }
-      };
-      request.onerror = function() {
-          resolve(svgBlack);
-      };
-      request.send();
+        };
+        request.send();
     });
-  }
+}
+
+function error(error) {
+    console.log('error' + error);
+}
 
 // average color of tile
 function getColors(pixels) {

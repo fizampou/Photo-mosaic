@@ -1,3 +1,8 @@
+// Image slicer will slice your image in tiles
+// you need to pass the image file and the number
+// of X and Y tiles.
+// You'll get back a 2D array of your tiles as imageData.
+
 var mosaic = require('./mosaic.js'),
     Coords = require('./Coords.js'),
     exports = exports || null;

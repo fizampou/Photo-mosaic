@@ -1,3 +1,6 @@
+// cordinates and used actions
+// per tile.
+
 var module = module || null;
 
 function Coords(x, y) {

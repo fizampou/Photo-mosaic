@@ -30,7 +30,7 @@ function ImageLoaded (file) {
 
 // Create the workers and assing them some tasks
 function assignToImageWorkers(imageTiles) {
-    var blockSize = Math.ceil(imageTiles.length / workersCount), // round the blocksize to the greater or equal initger number
+    var blockSize = Math.ceil(imageTiles.length / workersCount), // round the blocksize to the greater or equal intiger number
         index     = 0;
 
     for (index; index < workersCount; index++) {
@@ -70,9 +70,10 @@ function onRowReady (e) {
 // Draw row on canvas
 function drawRow(tiles, colors, position) {
     var imageTileSize = new Coords(mosaic.TILE_WIDTH, mosaic.TILE_HEIGHT),
+        j             = 0,
         drawPos;
 
-    for (var j = 0; j < tiles.length; j++) {
+    for (j; j < tiles.length; j++) {
         drawPos = new Coords(position, j).multiply(imageTileSize);
 
         drawTileOnCanva(tiles[j], colors[j], drawPos.y, drawPos.x);
@@ -81,9 +82,9 @@ function drawRow(tiles, colors, position) {
 
 // Draw tile on canvas with the dominant color
 function drawTileOnCanva (tile, dominantColor, positionX, positionY) {
-    var context = canvas.getContext('2d'),
+    var context           = canvas.getContext('2d'),
         dominantColorData = 'data:image/svg+xml;base64,' + window.btoa(dominantColor), // Create a Data URI (prefix + base64 encoding)
-        colorImage = new Image();
+        colorImage        = new Image();
 
     colorImage.onload = function() {
         context.putImageData(tile, positionX, positionY);
