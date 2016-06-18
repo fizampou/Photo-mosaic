@@ -3,15 +3,24 @@ var mosaic              = require('./mosaic.js'),
     Coords              = require('./Coords.js'),
     imageSlicer         = require('./imageSlicer.js'),
     work                = require('webworkify'),
-    tilesArray          = [], // Array holding tiles
-    dominantColorsArray = [], // Array holding dominant colors per tile
-    drawingPointer      = 0,  // Pointer on our drawn rows
     workersCount        = 4,  // Number of workers
-    pendingWorkers      = workersCount,  // Counter of finished workers
-    workersArray        = [workersCount], // Array holding our workers
-    canvas              = document.getElementById('canvas'); //Canvas to draw the final image
+    tilesArray, // Array holding tiles
+    dominantColorsArray, // Array holding dominant colors per tile
+    drawingPointer ,  // Pointer on our drawn rows
+    pendingWorkers,  // Counter of finished workers
+    workersArray, // Array holding our workers
+    canvas; //Canvas to draw the final image
 
 imagePicker.init(ImageLoaded);
+
+function initialize() {
+    pendingWorkers      = workersCount;
+    tilesArray          = [];
+    dominantColorsArray = [];
+    workersArray        = [workersCount];
+    drawingPointer      = 0;
+    canvas              = document.getElementById('canvas');
+}
 
 // image loaded
 function ImageLoaded(file) {
@@ -20,7 +29,7 @@ function ImageLoaded(file) {
         noOfTilesY   = imageToSlice.height / mosaic.TILE_HEIGHT,
         imageTiles   = imageSlicer.sliceImageIntoTiles(imageToSlice, new Coords(noOfTilesX, noOfTilesY));
 
-    //TODO: clean the canvas on second image
+    initialize(); // we need to re init whenever a new image is picked
 
     // set canvas dimensions equal to image dimensions
     canvas.width = imageToSlice.width;
