@@ -13,7 +13,7 @@ var mosaic              = require('./mosaic.js'),
 imagePicker.init(ImageLoaded);
 
 // image loaded
-function ImageLoaded (file) {
+function ImageLoaded(file) {
     var imageToSlice = file.target,
         noOfTilesX   = imageToSlice.width / mosaic.TILE_WIDTH,
         noOfTilesY   = imageToSlice.height / mosaic.TILE_HEIGHT,
@@ -86,7 +86,7 @@ function drawTileOnCanva (tile, dominantColor, positionX, positionY) {
         dominantColorData = 'data:image/svg+xml;base64,' + window.btoa(dominantColor), // Create a Data URI (prefix + base64 encoding)
         colorImage        = new Image();
 
-    colorImage.onload = function() {
+    colorImage.onload = function () {
         context.putImageData(tile, positionX, positionY);
         context.globalCompositeOperation = 'soft-light';
         context.drawImage(colorImage, positionX, positionY, mosaic.TILE_WIDTH, mosaic.TILE_HEIGHT);

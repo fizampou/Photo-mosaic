@@ -5,13 +5,12 @@
 
 onmessage = onMessage;
 
-function onMessage (e) {
+function onMessage(e) {
     var data  = e.data.data,
         index = e.data.index,
         i     = 0;
 
-    for (i; i < data.length; i++)
-    {
+    for (i; i < data.length; i++) {
         prepareRow(data, i, index).then(message, error);
     }
 }
@@ -26,7 +25,7 @@ function message(result) {
 }
 
 function prepareRow(data, i, index) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve) {
         var row            = i + index * data.length,
             dominantColors = [],
             j              = 0;
@@ -36,7 +35,7 @@ function prepareRow(data, i, index) {
         }
         dominantColors.push(row); // push the position
 
-        Promise.all(dominantColors).then(function(dominantColors) {
+        Promise.all(dominantColors).then(function (dominantColors) {
             var position  = dominantColors.pop(); // get the position
 
             resolve({
@@ -50,25 +49,23 @@ function prepareRow(data, i, index) {
 }
 
 function colorFetcher(url) {
-  // error? set black as failsafe
-  var svgBlack = [
-          '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16">',
-              '<ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="#000000"></ellipse>',
-          '</svg>'
-      ].join('');
+    // error? set black as failsafe
+    var svgBlack = ['<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16">',
+                    '<ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="#000000"></ellipse>',
+                    '</svg>'].join('');
 
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         var request = new XMLHttpRequest();
         request.open('GET', url);
 
-        request.onload = function() {
+        request.onload = function () {
             if (request.status === 200) {
                 resolve(request.response);
             } else {
                 resolve(svgBlack);
             }
         };
-        request.onerror = function() {
+        request.onerror = function () {
             resolve(svgBlack);
         };
         request.send();
@@ -83,26 +80,29 @@ function error(error) {
 function getColors(pixels) {
     var hexColor,
         rgbColor = {
-          r: 0,
-          g: 0,
-          b: 0,
-          a: 0
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 0
         },
-        colors = {},
         dominantColor = {
             hexColor: '',
             count: 0
-        };
+        },
+        colors = {},
+        i      = 0,
+        data   = pixels.data;
 
-    for (var i = 0, data = pixels.data; i < data.length; i += 4) {
+    for (i; i < data.length; i += 4) {
         rgbColor.r = data[i];
         rgbColor.g = data[i + 1];
         rgbColor.b = data[i + 2];
         rgbColor.a = data[i + 3];
 
         // skip pixels >50% transparent
-        if (rgbColor.a < (255 / 2))
+        if (rgbColor.a < (255 / 2)) {
             continue;
+        }
 
         hexColor = rgbToHex(rgbColor.r, rgbColor.g, rgbColor.b);
         if (!colors[hexColor]) {
