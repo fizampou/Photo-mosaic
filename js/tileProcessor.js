@@ -10,9 +10,9 @@ function error(err) {
     console.log('error' + err);
 }
 
-function prepareRow(data, i, index) {
+function prepareRow(data, i, index, maxLenght) {
     return new Promise(function (resolve) {
-        var row            = i + index * data.length,
+        var row            = i + index * maxLenght,
             dominantColors = [],
             j              = 0;
 
@@ -35,12 +35,13 @@ function prepareRow(data, i, index) {
 }
 
 function onMessage(e) {
-    var data  = e.data.data,
-        index = e.data.index,
-        i     = 0;
+    var data      = e.data.data,
+        index     = e.data.index,
+        maxLenght = e.data.maxLenght,
+        i         = 0;
 
     for (i; i < data.length; i++) {
-        prepareRow(data, i, index).then(message, error);
+        prepareRow(data, i, index, maxLenght).then(message, error);
     }
 }
 

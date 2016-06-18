@@ -40,15 +40,25 @@ function ImageLoaded(file) {
 
 // Create the workers and assing them some tasks
 function assignToImageWorkers(imageTiles) {
-    var blockSize = Math.ceil(imageTiles.length / workersCount), // round the blocksize to the greater or equal intiger number
-        index     = 0;
+    var blockSize      = Math.ceil(imageTiles.length / workersCount), // round the blocksize to the greater or equal intiger number
+        index          = 0,
+        tilesPerWorker = [],
+        maxLenght      = 0;
 
     for (index; index < workersCount; index++) {
         workersArray[index] = work(require('./tileProcessor.js'));
         workersArray[index].addEventListener('message', onRowReady);
+
+        tilesPerWorker = imageTiles.slice(blockSize * index, (blockSize * index) + blockSize);
+
+        if (maxLenght < tilesPerWorker.length) {
+            maxLenght = tilesPerWorker.length;
+        }
+        
         workersArray[index].postMessage({
-            data: imageTiles.slice(blockSize * index, (blockSize * index) + blockSize),
-            index: index
+            data: tilesPerWorker,
+            index: index,
+            maxLenght: maxLenght
         });
     }
 }
