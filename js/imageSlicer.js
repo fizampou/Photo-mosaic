@@ -9,7 +9,7 @@ var mosaic = require('./mosaic.js'),
 
 if (exports) {
     // slice image into tiles
-    exports.sliceImageIntoTiles = function(imageToSlice, sizeInTiles) {
+    exports.sliceImageIntoTiles = function (imageToSlice, sizeInTiles) {
         var totalTiles = [],
             tilesX     = [],
             tilePos    = new Coords(0, 0),
@@ -23,11 +23,9 @@ if (exports) {
 
         context.drawImage(imageToSlice, 0, 0);
 
-        for (var y = 0; y < sizeInTiles.y; y++)
-        {
+        for (var y = 0; y < sizeInTiles.y; y++) {
             tilePos.y = y;
-            for (var x = 0; x < sizeInTiles.x; x++)
-            {
+            for (var x = 0; x < sizeInTiles.x; x++) {
                 tilePos.x = x;
                 sourcePos.overwriteWith(tilePos).multiply(tileSize);
 
@@ -38,5 +36,5 @@ if (exports) {
             tilesX = []; // reset rows items
         }
         return totalTiles;
-    }
+    };
 }
